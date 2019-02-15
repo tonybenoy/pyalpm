@@ -106,7 +106,7 @@ static PyObject* pyalpm_register_syncdb(PyObject *self, PyObject *args) {
     return NULL;
   }
 
-  return pyalpm_db_from_pmdb(result);
+  return pyalpm_db_from_pmdb2(result, self);
 }
 
 static PyObject* pyalpm_set_pkgreason(PyObject* self, PyObject* args) {
