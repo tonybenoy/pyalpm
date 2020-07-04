@@ -1,16 +1,17 @@
 # Inspired by https://github.com/archlinux/arch-security-tracker/blob/master/Makefile
 
 PYTHON?=python
+PYLINT?=pylint
 PYTEST?=py.test
 PYTEST_OPTIONS+=-s
 PYTEST_INPUT?=test
 PYTEST_COVERAGE_OPTIONS+=--cov-report=term-missing --cov-report=html:test/coverage --cov=pycman
 EXT_COVERAGE_DIR=test/ext-coverage
 PY_VERSION=$(shell ${PYTHON} -c "import sys; print('{0[0]}.{0[1]}'.format(sys.version_info))")
-BUILD_DIR=build/lib.linux-x86_64-${PY_VERSION}
+BUILD_DIR=build/lib.linux-$(shell uname -m)-${PY_VERSION}
 DOC_DIR=doc
 
-.PHONY: test doc
+.PHONY: test doc lint
 
 build:
 	$(PYTHON) setup.py build
@@ -38,6 +39,9 @@ doc:
 
 open-doc: doc
 	${BROWSER} ${DOC_DIR}/_build/html/index.html
+
+lint:
+	$(PYLINT) pycman
 
 .PHONY: clean
 clean:

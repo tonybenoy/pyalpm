@@ -11,6 +11,8 @@ with Arch Linux package databases.
    Handle
    Database
    Package
+   Pyalpm
+   Transaction
 
 
 

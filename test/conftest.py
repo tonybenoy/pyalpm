@@ -1,15 +1,14 @@
-from shutil import rmtree
-from tempfile import mkdtemp
+from os import mkdir
+from shutil import copyfile
 
 import pytest
 
 from pyalpm import Handle
 
+from generate_pacman_db import generate_syncdb, generate_localdb
 
-ARCH = 'x86_64'
-PKG = 'pacman'
+PKG = 'linux'
 REPO_1 = 'core'
-TEST_MIRROR = 'http://mirror.rackspace.com/archlinux/{}/os/{}'
 
 
 @pytest.fixture()
@@ -18,18 +17,37 @@ def handle():
 
 
 @pytest.fixture()
-def localdb(handle):
-    return handle.get_localdb()
+def localdb(real_handle):
+    return real_handle.get_localdb()
 
 
 @pytest.fixture(scope="module")
-def real_handle():
-    dbpath = mkdtemp(dir='/tmp')
+def real_handle(tmpdir_factory):
+    dbpath = str(tmpdir_factory.mktemp('dbpath'))
+    syncdb = f"{dbpath}/sync"
+    localdb = f"{dbpath}/local"
+    mirrorpath = f'{dbpath}/{REPO_1}'
+    syncdbfile = f'{syncdb}/{REPO_1}.db'
+
+    mkdir(syncdb)
+    mkdir(localdb)
+    mkdir(mirrorpath)
+
+    generate_syncdb(syncdbfile)
+
     handle = Handle('/', dbpath)
+
+    # Generate localdb content after the db is initialised
+    generate_localdb(localdb)
+
+    # Generate local repo by copying the sync core.db
+    # TODO: use a different sync db with a more packages
+    copyfile(syncdbfile, f'{mirrorpath}/{REPO_1}.db')
+
     repo = handle.register_syncdb(REPO_1, 0)
-    repo.servers = [TEST_MIRROR.format(REPO_1, ARCH)]
+    repo.servers = [f'file:///{mirrorpath}']
+
     yield handle
-    rmtree(dbpath)
 
 
 @pytest.fixture(scope="module")
@@ -41,8 +59,12 @@ def syncdb(real_handle, name=REPO_1):
 
 @pytest.fixture(scope="module")
 def package(syncdb, name=PKG):
-    syncdb.update(False)
     return syncdb.get_pkg(name)
+
+
+@pytest.fixture()
+def localpackage(localdb, name=PKG):
+    return localdb.get_pkg(name)
 
 
 @pytest.fixture()
@@ -55,4 +77,4 @@ def transaction(real_handle):
 def assert_string_argument(func):
     with pytest.raises(TypeError) as excinfo:
         func(1)
-    assert 'expecting a string argument' in str(excinfo)
+    assert 'expecting a string argument' in str(excinfo.value)

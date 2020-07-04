@@ -3,8 +3,12 @@ Packages
 
 .. py:class:: Package
 
+   .. py:attribute:: name (str)
+
+      The name of the package
+
    .. py:attribute:: builddate (Long long)
-        
+
       The date on which this package was built
 
    .. py:attribute:: installdate (Long Long)
@@ -35,17 +39,25 @@ Packages
 
       A list of licenses for this package.
 
-   .. py:attribute:: deltas (list)
-
-      A list of deltas for this package
-
    .. py:attribute:: desc (string)
 
       Package description.
 
+   .. py:attribute:: depends (list)
+
+      A list of dependencies for this package
+
    .. py:attribute:: optdepends (list)
 
       A list of the optional dependencies for this package
+
+   .. py:attribute:: checkdepends (list)
+
+      A list of the check dependencies for this package (syncdb only)
+
+   .. py:attribute:: makedepends (list)
+
+      A list of the make dependencies for this package (syncdb only)
 
    .. py:attribute:: replaces (list)
 
@@ -97,6 +109,12 @@ Packages
 
    .. py:method:: compute_requiredby()
 
-      Computes a list of the packages required by this package
+      Computes a list of the packages this package is required by
 
-     :returns list[Packages]: the packages required by this package 
+     :returns: the packages who require this package
+
+   .. py:method:: compute_optionalfor()
+
+      Computes a list of the packages optionally requiring this package
+
+     :returns: the packages who optionally require this package

@@ -250,11 +250,7 @@ struct PyGetSetDef pyalpm_handle_getset[] = {
     (getter)option_get_usesyslog_alpm,
     (setter)option_set_usesyslog_alpm,
     "use syslog (an integer, 0 = False, 1 = True)", NULL } ,
-  { "deltaratio",
-    (getter)option_get_deltaratio_alpm,
-    (setter)option_set_deltaratio_alpm,
-    "set deltaratio (a float). Deltas are enabled if this is nonzero.", NULL } ,
-  { "checkspace",
+ { "checkspace",
     (getter)option_get_checkspace_alpm,
     (setter)option_set_checkspace_alpm,
     "check disk space before transactions (an integer, 0 = False, 1 = True)", NULL } ,
@@ -331,7 +327,7 @@ static PyMethodDef pyalpm_handle_methods[] = {
     "Arguments:\n"
     "  nodeps, force, nosave, nodepversion, cascade, recurse,\n"
     "  dbonly, alldeps, downloadonly, noscriptlet, noconflicts,\n"
-    "  needed, allexplicit, inneeded, recurseall, nolock\n"
+    "  needed, allexplicit, unneeded, recurseall, nolock\n"
     "    -- the transaction options (booleans)\n"
   },
 

@@ -1,10 +1,10 @@
-from conftest import package, PKG
+from conftest import PKG
 
 from pyalpm import Package
 
 
 def test_db(package):
-    assert not package.db is None
+    assert package.db is not None
 
 def test_name(package):
     assert package.name == PKG
@@ -30,14 +30,11 @@ def test_builddate(package):
 def test_installdate(package):
     assert package.installdate == 0
 
-def test_files(package):
-    assert package.files == []
+def test_files(localpackage):
+    assert localpackage.files != []
 
-def test_backup(package):
-    assert package.backup == []
-
-def test_deltas(package):
-    assert package.deltas == []
+def test_backup(localpackage):
+    assert localpackage.backup != []
 
 def test_depends(package):
     assert package.depends != []
@@ -46,10 +43,13 @@ def test_has_scriptlet(package):
     assert isinstance(package.has_scriptlet, bool)
 
 def test_download_size(package):
-    assert package.download_size > 0
+    assert package.download_size == 0
 
 def test_compute_requiredby(package):
-    assert package.compute_requiredby() == []
+    assert package.compute_requiredby() == ['base']
+
+def test_compute_optionalfor(package):
+    assert package.compute_optionalfor() == []
 
 def test_repr(package):
     assert repr(Package) == "<class 'alpm.Package'>"

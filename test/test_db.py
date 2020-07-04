@@ -1,6 +1,6 @@
 import pytest
 
-from conftest import handle, localdb, syncdb
+from pyalpm import error
 
 
 def test_empty_getsyncdb(handle):
@@ -27,7 +27,16 @@ def test_get_pkg(localdb):
 
 def test_update(syncdb):
     syncdb.update(False)
-    assert not syncdb.search('pacman') is None
+    assert syncdb.search('pacman') is not None
+
+def test_update_error(handle, syncdb):
+    servers = syncdb.servers
+    syncdb.servers = ['nonexistant']
+    with pytest.raises(error) as excinfo:
+        syncdb.update(False)
+    assert 'unable to update database' in str(excinfo.value)
+    # TODO(jelle): remove when handle is no longer scope="module"
+    syncdb.servers = servers
 
 # DB properties
 
@@ -37,10 +46,26 @@ def test_db_name(localdb):
 def test_db_servers(localdb):
     assert localdb.servers == []
 
+    with pytest.raises(TypeError) as excinfo:
+        localdb.servers = [1]
+    assert 'list must contain only strings' in str(excinfo.value)
+
+    localdb.servers = [b'server']
+    assert localdb.servers == ['server']
+
 def test_db_pkgcache(localdb):
-    assert localdb.pkgcache == []
+    assert localdb.pkgcache != []
 
 def test_db_grpcache_empty(localdb):
     assert localdb.grpcache == []
+
+def test_db_grpcache_not_empty(syncdb):
+    assert syncdb.grpcache != []
+
+def test_db_repr(localdb):
+    assert 'local' in repr(localdb)
+
+def test_db_str(localdb):
+    assert 'local' in str(localdb)
 
 # vim: set ts=4 sw=4 et:

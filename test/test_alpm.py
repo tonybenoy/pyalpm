@@ -33,6 +33,10 @@ def test_find_satisfier_error():
         pyalpm.find_satisfier()
     assert 'takes a Package list and a string' in str(excinfo.value)
 
+    with pytest.raises(TypeError) as excinfo:
+        pyalpm.find_satisfier(["foo"], PKG)
+    assert 'list must contain only Package objects' in str(excinfo.value)
+
 def test_find_grp_pkgs(syncdb):
     assert pyalpm.find_grp_pkgs([syncdb], 'test') == []
 
@@ -40,6 +44,10 @@ def test_find_grp_pkgs_error():
     with pytest.raises(TypeError) as excinfo:
         pyalpm.find_grp_pkgs()
     assert 'expected arguments' in str(excinfo.value)
+
+    with pytest.raises(TypeError) as excinfo:
+        pyalpm.find_grp_pkgs([None], 'test')
+    assert 'list must contain only Database objects' in str(excinfo.value)
 
 def test_sync_newversion(syncdb, package):
     assert pyalpm.sync_newversion(package, [syncdb]) is None

@@ -92,6 +92,20 @@ int pylist_db_to_alpmlist(PyObject *list, alpm_list_t **result) {
   return NULL; \
   }
 
+static PyObject* pyalpm_db_repr(PyObject *rawself) {
+  AlpmDB *self = (AlpmDB *)rawself;
+  return PyUnicode_FromFormat("<alpm.DB(\"%s\") at %p>",
+			      alpm_db_get_name(self->c_data),
+			      self);
+}
+
+static PyObject* pyalpm_db_str(PyObject *rawself) {
+  AlpmDB *self = (AlpmDB *)rawself;
+  return PyUnicode_FromFormat("alpm.DB(\"%s\")",
+			      alpm_db_get_name(self->c_data),
+            self);
+}
+
 /** Database properties */
 
 static PyObject* pyalpm_db_get_name(AlpmDB* self, void* closure) {
@@ -241,6 +255,8 @@ static PyTypeObject AlpmDBType = {
   sizeof(AlpmDB),        /*tp_basicsize*/
   0,                          /*tp_itemsize*/
   .tp_dealloc = (destructor)pyalpm_db_dealloc,
+  .tp_repr = pyalpm_db_repr,
+  .tp_str = pyalpm_db_str,
   .tp_flags = Py_TPFLAGS_DEFAULT,
   .tp_doc = "libalpm DB object",
   .tp_methods = db_methods,
@@ -304,7 +320,7 @@ PyObject* pyalpm_find_grp_pkgs(PyObject* self, PyObject *args) {
 }
 
 /** Finds an available upgrade for a package in a list of databases */
-PyObject* pyalpm_sync_newversion(PyObject *self, PyObject* args) {
+PyObject* pyalpm_sync_get_new_version(PyObject *self, PyObject* args) {
   PyObject *pkg;
   PyObject *dbs;
   alpm_list_t *db_list;
@@ -320,7 +336,7 @@ PyObject* pyalpm_sync_newversion(PyObject *self, PyObject* args) {
   {
     alpm_pkg_t *rawpkg = pmpkg_from_pyalpm_pkg(pkg);
     if (rawpkg) {
-      result = alpm_sync_newversion(rawpkg, db_list);
+      result = alpm_sync_get_new_version(rawpkg, db_list);
     }
     alpm_list_free(db_list);
   }

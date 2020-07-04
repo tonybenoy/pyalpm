@@ -4,19 +4,20 @@ sudo: required
 
 env: ARCH_TRAVIS_CLEAN_CHROOT=1
 
-arch:
+archlinux:
 
   packages:
     - python
     - python-pytest
     - python-pytest-cov
     - python-sphinx
+    - python-pylint
 
   script:
     - python3 -m py_compile $(git ls-files '*.py')
     - sudo python3 setup.py install
-    - sudo mkdir /var/cache/pacman/pkg
     - make test
+    - make lint
     - make -C doc html
 
 script: 'curl -s https://raw.githubusercontent.com/mikkeloscar/arch-travis/master/arch-travis.sh | bash'

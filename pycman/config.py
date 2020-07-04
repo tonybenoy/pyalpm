@@ -68,13 +68,12 @@ SINGLE_OPTIONS = (
 	'SigLevel',
 	'LocalFileSigLevel',
 	'RemoteFileSigLevel',
-	'UseDelta',
+	'ParallelDownloads',
 )
 
 BOOLEAN_OPTIONS = (
 	'UseSyslog',
 	'ShowSize',
-	'UseDelta',
 	'TotalDownload',
 	'CheckSpace',
 	'VerbosePkgLists',

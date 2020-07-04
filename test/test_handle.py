@@ -2,7 +2,7 @@ from pytest import raises
 
 import pyalpm
 
-from conftest import assert_string_argument, handle, PKG
+from conftest import assert_string_argument, PKG
 
 
 def test_cachedirs(handle):
@@ -40,7 +40,7 @@ def test_ignorepkg(handle):
     assert PKG in handle.ignorepkgs
 
     handle.remove_ignorepkg(PKG)
-    assert PKG not in  handle.ignorepkgs
+    assert PKG not in handle.ignorepkgs
 
 def test_ignorepkg_error(handle):
     assert_string_argument(handle.add_ignorepkg)
@@ -83,12 +83,7 @@ def test_usesyslog(handle):
 def test_usesyslog_error(handle):
     with raises(TypeError) as excinfo:
         handle.usesyslog = "nope"
-    assert 'wrong arguments' in str(excinfo)
-
-def test_deltaratio(handle):
-    assert handle.deltaratio == 0.0
-    handle.deltaratio = 1
-    assert handle.deltaratio == 1.0
+    assert 'wrong arguments' in str(excinfo.value)
 
 def test_checkspace(handle):
     assert not handle.checkspace
@@ -98,7 +93,7 @@ def test_checkspace(handle):
 def test_checkspace_error(handle):
     with raises(TypeError) as excinfo:
         handle.checkspace = "nope"
-    assert 'wrong arguments' in str(excinfo)
+    assert 'wrong arguments' in str(excinfo.value)
 
 def test_noupgrades(handle):
     assert not handle.noupgrades
@@ -112,12 +107,52 @@ def test_root(handle):
 
 def test_gpgdir(handle):
     handle.gpgdir = '/'
+    assert handle.gpgdir == '/'
+
+    handle.gpgdir = b'/'
+    assert handle.gpgdir == '/'
+
+def test_invalid_logfile(handle):
+    with raises(TypeError) as excinfo:
+        handle.logfile = 1
+    assert 'logfile path must be a string' in str(excinfo.value)
+
+def test_invalid_logcb(handle):
+    with raises(TypeError) as excinfo:
+        handle.logcb = 1
+    assert 'value must be None or a function' in str(excinfo.value)
+
+def test_logcb(handle):
+    handle.logcb = None
+    assert handle.logcb is None
 
 def test_load_pkg(handle):
     with raises(pyalpm.error) as excinfo:
         handle.load_pkg('/tmp/noexistant.txt')
-    assert 'loading package failed' in str(excinfo)
+    assert 'loading package failed' in str(excinfo.value)
 
+def test_set_pkgreason(handle, package):
+    with raises(pyalpm.error) as excinfo:
+        handle.set_pkgreason(package, -1)
+    assert 'failed setting install reason' in str(excinfo.value)
+
+def test_register_syncdb_invalid(handle):
+    with raises(TypeError) as excinfo:
+        handle.register_syncdb([], -1)
+    assert 'takes a string and an integer' in str(excinfo.value)
+
+    with raises(TypeError) as excinfo:
+        handle.register_syncdb("foo", "bar")
+    assert 'takes a string and an integer' in str(excinfo.value)
+
+    with raises(pyalpm.error) as excinfo:
+        handle.register_syncdb("http://", 99999)
+    assert 'unable to register sync database' in str(excinfo.value)
+
+def test_create_failed():
+    with raises(pyalpm.error) as excinfo:
+        pyalpm.Handle('/', '/')
+    assert 'could not create a libalpm handle' in str(excinfo.value)
 
 
 # vim: set ts=4 sw=4 et:
